@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark"> <!-- ダークモードを有効化 -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分析ダッシュボード（自動車・不動産・購入・投資）</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Noto Sans JP と Inter を読み込み -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* フォント設定（新規ファイルからマージ） */
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Chart.jsのレスポンシブ対応コンテナ（既存） */
+        .chart-container-large {
+            position: relative;
+            margin: auto;
+            height: 60vh;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .chart-container-medium {
+            position: relative;
+            margin: auto;
+            height: 450px;
+            width: 100%;
+        }
+        .chart-container-small {
+            position: relative;
+            margin: auto;
+            height: 400px;
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+    <!-- Tailwindダークモード設定（新規ファイルからマージ） -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // ダークモードをクラスで有効にする
+            theme: {
+                extend: {
+                    colors: {
+                        gray: {
+                            900: '#1a202c',
+                            800: '#2d3748',
+                            700: '#4a5568',
+                            200: '#e2e8f0',
+                            100: '#f7fafc',
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<!-- bodyにダークモード用のクラスを追加 -->
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-6 lg:p-8">
+
+    <header class="text-center mb-10">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">分析ダッシュボード</h1>
+        <p class="text-lg text-gray-600 dark:text-gray-300 mt-2">各種シミュレーション結果のまとめ</p>
+    </header>
+
+    <div class="space-y-12">
+
+        <!-- 分析1: スマートフォン購入 (ダークモード対応) -->
+        <section class="w-full max-w-5xl mx-auto bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg">
+            <div class="mb-6">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">新しいスマホにしたら、73,760円トクになる話</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <!-- グラフ -->
+                <div class="chart-container-small">
+                    <canvas id="smartphoneChart"></canvas>
+                </div>
+                
+                <!-- 計算内訳 -->
+                <div class="text-base text-gray-700 dark:text-gray-300 space-y-4">
+                    <p>スマホの定価は26万円。手持ちのポイントを6万円分使って、今回実際に支払ったお金は<strong class="text-red-600 font-bold text-lg">20万円</strong>です。</p>
+                    <p>この支払った20万円に対して、今度は4つの形で価値が戻ってきます。</p>
+                    
+                    <ul class="list-disc list-inside bg-gray-100 dark:bg-gray-700 p-4 rounded-lg space-y-2">
+                        <li>下取りで： <strong class="font-semibold text-gray-900 dark:text-gray-100">100,000円</strong></li>
+                        <li>新しいポイントで： <strong class="font-semibold text-gray-900 dark:text-gray-100">60,000円</strong></li>
+                        <li>税金の節約で： <strong class="font-semibold text-gray-900 dark:text-gray-100">78,000円</strong><br><span class="text-sm text-gray-500 dark:text-gray-400">（ご指定の通り、定価26万円の30%として計算）</span></li>
+                        <li>Google One（1年分）： <strong class="font-semibold text-gray-900 dark:text-gray-100">35,760円</strong><br><span class="text-sm text-gray-500 dark:text-gray-400">（月額2,980円 × 12ヶ月分が無料になる価値）</span></li>
+                    </ul>
+
+                    <p class="font-bold text-lg">これらを合計すると、戻ってくる価値は<br><span class="text-blue-500 dark:text-blue-400 text-2xl">273,760円</span> になります。</p>
+                    
+                    <div class="bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-500 p-4 rounded-md">
+                        <p class="text-xl font-bold text-gray-900 dark:text-gray-100">273,760円（戻る価値） - 200,000円（支払ったお金） = <span class="text-blue-600 dark:text-blue-300 text-3xl">73,760円</span></p>
+                        <p class="font-semibold text-gray-800 dark:text-gray-200 mt-1">結論として、スマホを新しくした結果、73,760円のプラスになります。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 分析2: 主要人気モデルの残価率 (ダークモード対応) -->
+        <section class="w-full max-w-5xl mx-auto bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg">
+            <div class="mb-6">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">主要5車種 残価率推移 比較グラフ</h2>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">ご指定のデータを基に、5車種の一般的なリセールバリュー（残価率）の推移予測を比較（2025年10月時点）。</p>
+            </div>
+            
+            <div class="chart-container-large">
+                <canvas id="resaleChart"></canvas>
+            </div>
+
+            <div class="mt-8 text-sm text-gray-500 dark:text-gray-400">
+                <h3 class="font-semibold text-gray-700 dark:text-gray-200 mb-2">グラフに関する注記:</h3>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>このグラフは、ご提供いただいたデータを基に作成した推定値です。実際の価格は状態、グレード、需給により大きく変動します。</li>
+                    <li>**メルセデス・ベンツ Gクラス**: 納車期間の長さから中古車需要が極めて高く、3年後でも120%を超える異常な残価率を示します。5年後でも80%以上を維持します。</li>
+                    <li>**トヨタ アルファード**: Gクラス同様、旺盛な輸出需要により新車価格を上回るプレミア相場が形成されています。特にハイブリッドモデルの未走行車で高い残価率が見られます。</li>
+                    <li>**レクサス RX**: ハイブリッドモデルは輸出需要が限定的で、残価率が伸び悩む傾向にあります。今回はご指示に基づき、最も低い数値を参考にプロットしています。</li>
+                    <li>**マセラティ グレカーレ**: 1年後から大きく値を下げ、5年後には40%台まで下落します。ラグジュアリーSUVの中でもリセールは厳しい傾向です。</li>
+                    <li>**マクラーレン (570GT)**: 1年で半額近くまで急激に下落する典型的なスーパーカーの傾向を示します。パフォーマンスと希少性の一方で、維持費の高さがリセールに影響します。</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 分析3: 大阪主要エリアの坪単価 (ダークモード対応) -->
+        <section class="w-full max-w-6xl mx-auto bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg">
+            <header class="text-center mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">大阪主要エリアの坪単価推移（2005-2025年）</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-300 mt-2">指定データに基づく地価の動向と考察</p>
+            </header>
+
+            <!-- Chart Container -->
+            <div class="bg-white dark:bg-gray-800 pb-8">
+                <div class="chart-container-medium">
+                    <canvas id="landPriceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Analysis Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Explanation and Notes -->
+                <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-2xl shadow-inner">
+                    <h3 class="text-2xl font-bold mb-4 border-b-2 border-blue-500 dark:border-blue-400 pb-2">グラフの解説と注意点</h3>
+                    <div class="space-y-4 text-base text-gray-800 dark:text-gray-200">
+                        <p><strong class="font-bold text-blue-600 dark:text-blue-400">梅田の圧倒的な成長：</strong>グラフは、ご指定の通り「梅田（北区）」の地価が4倍に急騰する様子を示しています。2005年の坪単価150万円が、2025年には600万円に達する予測となり、その驚異的な伸びが際立っています。</p>
+                        <p><strong class="font-bold text-blue-600 dark:text-blue-400">中央区・天王寺区の堅調さ：</strong>「中央区」も3倍と力強い成長を見せています。一方で、「上本町（天王寺区）」も着実に価値を上げており、都心部の全体的な地価上昇トレンドが確認できます。</p>
+                        <p><strong class="font-bold text-blue-600 dark:text-blue-400">布施エリアの動向：</strong>「東大阪市布施」は、2005年の100万円から2025年には120万円へと、より現実的な価格帯での緩やかな上昇に修正されました。都心部との成長率の差は依然として大きく、資産格差の拡大を示唆しています。</p>
+                        <hr class="my-4 border-gray-300 dark:border-gray-600">
+                        <h4 class="text-lg font-bold text-red-600 dark:text-red-400">【注意点】</h4>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                            <li>本グラフの坪単価は、指定された数値を基に、中間年（2013年）を線形補間してプロットしています。</li>
+                            <li>2025年のデータは予測値であり、実際の価格を保証するものではありません。</li>
+                            <li>実際の取引価格は個別要因（駅からの距離、方角、建物の状態など）により変動します。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Proof of difficulty moving -->
+                <div class="bg-red-50 dark:bg-gray-700 p-6 rounded-2xl shadow-inner border-2 border-red-200 dark:border-red-600">
+                    <h3 class="text-2xl font-bold mb-4 border-b-2 border-red-500 dark:border-red-400 pb-2">考察：なぜ中央区から北区（梅田）へ移住するのは絶望的に難しいのか？</h3>
+                    <div class="space-y-4 text-base text-gray-800 dark:text-gray-200">
+                        <p>更新されたデータは、「中央区の不動産価値が上がっても、北区（梅田）への住み替えは以前の想定以上に困難」という現実をさらに強力に裏付けます。原因は、<strong class="font-bold text-red-700 dark:text-red-400">両エリアの資産価値の上昇倍率の違い</strong>にあります。</p>
+                        
+                        <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                            <h4 class="font-bold text-center mb-2">【具体的なシミュレーション】</h4>
+                            <p class="text-sm text-center text-gray-600 dark:text-gray-400 mb-3">仮に2005年に中央区で30坪の不動産（3,600万円）を所有していたとします。</p>
+                            <ul class="space-y-2">
+                                <li><strong class="text-gray-800 dark:text-gray-100">2025年の中央区の資産価値:</strong><br>
+                                    坪単価120万円 → 360万円 (3倍)<br>
+                                    資産価値は <strong class="text-green-600 dark:text-green-400">1億800万円</strong> に上昇。
+                                </li>
+                                <li><strong class="text-gray-800 dark:text-gray-100">2025年に北区で同等の不動産を買うには:</strong><br>
+                                    坪単価は600万円に高騰。<br>
+                                    必要な資金は <strong class="text-red-600 dark:text-red-400">1億8,000万円</strong>。
+                                </li>
+                            </ul>
+                            <p class="mt-4 text-center font-bold text-4xl text-red-700 dark:text-red-400">
+                                不足額： 7,200万円
+                            </p>
+                        </div>
+
+                        <p>この計算が示すように、資産価値の上昇倍率が「3倍」と「4倍」で異なるだけで、20年間で<strong class="font-bold">実に7,200万円もの埋めがたい資産格差</strong>が生まれてしまいます。</p>
+                        <p>この巨額の差額を個人の収入で補うことは、もはや非現実的です。梅田エリアのブランド力と将来性が他のエリアを圧倒する価格を形成し、一度その”階層”から外れると、追いつくことが極めて困難になっていることの動ぬ証拠と言えるでしょう。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ★★★ 分析4: インフレヘッジ戦略 (更新) ★★★ -->
+        <section class="w-full max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sm:p-8">
+            
+            <!-- ヘッダー (「総資産10億円」を削除) -->
+            <header class="mb-8">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-blue-600 dark:text-blue-400">
+                    「3%インフレ継続」シナリオに基づくポートフォリオ戦略
+                </h2>
+                <p class="text-center text-lg text-gray-700 dark:text-gray-300 mt-2">
+                    特性の異なる2ファンド（合計4%）を組み入れる戦略の分析
+                </p>
+            </header>
+
+            <!-- ファンド分析セクション (内容を更新) -->
+            <section class="grid md:grid-cols-2 gap-6 mb-8">
+                <!-- カード1: ニュートン・パワー・イノベーション・ファンド (内容更新) -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300 hover:shadow-xl ring-1 ring-gray-200 dark:ring-gray-700">
+                    <h3 class="text-2xl font-semibold mb-3 text-green-600 dark:text-green-400">1. ニュートン・パワー・イノベーション・ファンド</h3>
+                    <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 mb-2">タイプ: テーマ型株式 (キャピタルゲイン狙い)</p>
+                    <!-- Fermi Americaのニュースと実績を追加 -->
+                    <p class="mb-4">
+                        クリーンエネルギー、電力インフラ等の「電力革新」テーマに投資。現在、電力セクターは市場の強い注目を集めています。象徴的なのが10月にナスダックへ上場した<strong class="text-yellow-500 dark:text-yellow-400">Fermi America</strong>で、売上ゼロにも関わらず時価総額約2.9兆円に達し、新たなビリオネアを生み出しました。本ファンドもこの時流を捉え、直近1年未満で<strong class="text-green-600 dark:text-green-400">60%</strong>のパフォーマンスを達成しています。
+                    </p>
+                    <div class="bg-green-100 dark:bg-green-900 p-4 rounded-lg">
+                        <strong class="text-green-800 dark:text-green-200">インフレとの相性:</strong>
+                        <p class="text-green-700 dark:text-green-300">インフレによる「資産価値（インフラ等）」の上昇を捉え、キャピタルゲイン（値上がり益）を目指します。</p>
+                    </div>
+                </div>
+
+                <!-- カード2: アレス・プライベート・クレジット戦略ファンド (内容更新) -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-all duration-300 hover:shadow-xl ring-1 ring-gray-200 dark:ring-gray-700">
+                    <h3 class="text-2xl font-semibold mb-3 text-purple-600 dark:text-purple-400">2. アレス・プライベート・クレジット戦略ファンド</h3>
+                    <p class="text-sm uppercase font-semibold text-gray-500 dark:text-gray-400 mb-2">タイプ: オルタナティブ (インカムゲイン狙い)</p>
+                    <p class="mb-4">米国中堅企業への非公開ローン（プライベート・クレジット）に投資。主な収益源は利息収入です。</p>
+                    <div class="bg-purple-100 dark:bg-purple-900 p-4 rounded-lg">
+                        <strong class="text-purple-800 dark:text-purple-200">インフレとの相性:</strong>
+                        <!-- パフォーマンス(8-10%)を追加 -->
+                        <p class="text-purple-700 dark:text-purple-300">多くが「変動金利」で運用されます。インフレ対策としての「高金利」局面で利息収入が増加し、高いインカムゲイン（年率<strong class="text-purple-600 dark:text-purple-400">8～10%</strong>）を安定的に創出しています。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- グラフ可視化セクション (変更なし) -->
+            <section class="mb-8">
+                <h3 class="text-3xl font-bold text-center mb-6">戦略の可視化</h3>
+                <div class="grid md:grid-cols-3 gap-6">
+
+                    <!-- グラフ1: ポートフォリオ配分 (円グラフ) -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 ring-1 ring-gray-200 dark:ring-gray-700">
+                        <h4 class="text-xl font-semibold text-center mb-4">ポートフォリオ配分 (概念図)</h4>
+                        <canvas id="portfolioChart"></canvas>
+                        <p class="text-center text-sm mt-4 text-gray-600 dark:text-gray-400">
+                            総資産の4%を「サテライト（衛星）投資」として配分。
+                        </p>
+                    </div>
+
+                    <!-- グラフ2: インフレ下の期待リターン源泉 (ドーナツグラフ) -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 ring-1 ring-gray-200 dark:ring-gray-700">
+                        <h4 class="text-xl font-semibold text-center mb-4">インフレ下の期待リターン源泉</h4>
+                        <canvas id="returnSourceChart"></canvas>
+                        <p class="text-center text-sm mt-4 text-gray-600 dark:text-gray-400">
+                            インフレに対し、異なるアプローチ（値上がり益 vs 利息収入）で収益を狙います。
+                        </p>
+                    </div>
+
+                    <!-- グラフ3: 分散効果 (折れ線グラフ) -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 ring-1 ring-gray-200 dark:ring-gray-700">
+                        <h4 class="text-xl font-semibold text-center mb-4">ポートフォリオ分散効果 (概念図)</h4>
+                        <canvas id="diversificationChart"></canvas>
+                        <p class="text-center text-sm mt-4 text-gray-600 dark:text-gray-400">
+                            伝統資産と異なる値動きで、ポートフォリオ全体の変動を安定化させる効果を期待。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 結論セクション (リスク部分を削除) -->
+            <section class="grid md:grid-cols-1 gap-6"> <!-- grid-cols-1に変更 -->
+                <!-- 結論 -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-l-4 border-blue-500">
+                    <h3 class="text-2xl font-semibold mb-3">結論: 戦略の妥当性</h3>
+                    <p class="mb-4">「3%インフレ継続」というシナリオに基づけば、この2ファンドの選択はインフレヘッジ戦略として非常に合理的です。</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>
+                            <strong class="text-green-600 dark:text-green-400">パワー・イノベーション (株式)</strong>:
+                            インフレによる「資産価値」上昇を狙う。
+                        </li>
+                        <li>
+                            <strong class="text-purple-600 dark:text-purple-400">プライベート・クレジット (ローン)</strong>:
+                            インフレに伴う「高金利」の恩恵を受ける。
+                        </li>
+                    </ul>
+                    <p class="mt-4 font-semibold">
+                        この2つはアプローチが異なり補完関係にあります。総資産の4%という比率でこれらを組み入れることは、分散効果を高める上で有効な戦略と考えられます。
+                    </p>
+                </div>
+
+                <!-- リスク注記 (削除) -->
+                <!-- 
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-l-4 border-yellow-500">
+                    ...
+                </div>
+                -->
+            </section>
+        </section>
+
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- グラフのための設定 (ダークモード対応) ---
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const textColor = isDarkMode ? '#e2e8f0' : '#4a5568'; // dark:text-gray-200 / text-gray-700
+            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            
+            Chart.defaults.color = textColor;
+            Chart.defaults.borderColor = gridColor;
+
+            // --- グラフ1: スマートフォン購入 ---
+            const ctxSmartphone = document.getElementById('smartphoneChart')?.getContext('2d');
+            if (ctxSmartphone) {
+                new Chart(ctxSmartphone, {
+                    type: 'bar',
+                    data: {
+                        labels: ['支払ったお金', '戻ってくる価値'],
+                        datasets: [{
+                            label: '金額（円）',
+                            data: [200000, 273760],
+                            backgroundColor: [
+                                'rgba(239, 68, 68, 0.7)', // red-500
+                                'rgba(59, 130, 246, 0.7)'  // blue-500
+                            ],
+                            borderColor: [
+                                'rgba(239, 68, 68, 1)',
+                                'rgba(59, 130, 246, 1)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: '支出と回収の比較',
+                                font: { size: 18, weight: 'bold' },
+                                padding: { bottom: 20 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(context.parsed.y);
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '金額（円）',
+                                    font: { size: 14, weight: '500' }
+                                },
+                                ticks: {
+                                    color: textColor, // ダークモード対応
+                                    callback: function(value) {
+                                        return value / 10000 + '万円';
+                                    }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: textColor // ダークモード対応
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- グラフ2: 主要人気モデルの残価率 ---
+            const ctxResale = document.getElementById('resaleChart')?.getContext('2d');
+            if (ctxResale) {
+                const dataResale = {
+                    labels: ['新車', '1年後', '2年後', '3年後', '4年後', '5年後'],
+                    datasets: [
+                        {
+                            label: 'メルセデス・ベンツ Gクラス',
+                            data: [100, 145, 134, 122, 102, 82],
+                            borderColor: isDarkMode ? '#FFFFFF' : '#000000', // ダークモード対応
+                            backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: isDarkMode ? '#FFFFFF' : '#000000',
+                            tension: 0.2,
+                            fill: true,
+                        },
+                        {
+                            label: 'トヨタ アルファード',
+                            data: [100, 132, 113, 109, 95, 85],
+                            borderColor: 'rgba(10, 20, 80, 1)',
+                            backgroundColor: 'rgba(10, 20, 80, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: 'rgba(10, 20, 80, 1)',
+                            tension: 0.2,
+                            fill: true,
+                        },
+                         {
+                            label: 'レクサス RX',
+                            data: [100, 95, 88, 84, 79, 77],
+                            borderColor: 'rgba(150, 150, 150, 1)',
+                            backgroundColor: 'rgba(150, 150, 150, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: 'rgba(150, 150, 150, 1)',
+                            tension: 0.2,
+                            fill: true,
+                        },
+                        {
+                            label: 'マセラティ グレカーレ',
+                            data: [100, 88, 77, 65, 54, 43],
+                            borderColor: 'rgba(0, 50, 100, 1)',
+                            backgroundColor: 'rgba(0, 50, 100, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: 'rgba(0, 50, 100, 1)',
+                            tension: 0.2,
+                            fill: true,
+                        },
+                        {
+                            label: 'マクラーレン (570GT)',
+                            data: [100, 50, 49.5, 49, 45, 42],
+                            borderColor: 'rgba(255, 135, 0, 1)',
+                            backgroundColor: 'rgba(255, 135, 0, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: 'rgba(255, 135, 0, 1)',
+                            tension: 0.2,
+                            fill: true,
+                            borderDash: [5, 5]
+                        }
+                    ]
+                };
+                
+                const configResale = {
+                    type: 'line',
+                    data: dataResale,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: { 
+                                    font: { size: 12, family: "'Noto Sans JP', sans-serif" },
+                                    color: textColor // ダークモード対応
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: '経過年数と残価率の関係',
+                                font: { size: 18, family: "'Noto Sans JP', sans-serif", weight: '600' },
+                                padding: { top: 10, bottom: 20 }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                min: 30,
+                                max: 150,
+                                title: {
+                                    display: true,
+                                    text: '残価率 (%)',
+                                    font: { size: 14, weight: '500' }
+                                },
+                                ticks: {
+                                    color: textColor, // ダークモード対応
+                                    callback: function(value, index, values) {
+                                        return value + '%';
+                                    }
+                                }
+                            },
+                            x: {
+                                  title: {
+                                    display: true,
+                                    text: '経過年S数',
+                                    font: { size: 14, weight: '500' }
+                                },
+                                ticks: {
+                                    color: textColor // ダークモード対応
+                                }
+                            }
+                        },
+                        interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                        }
+                    }
+                };
+                new Chart(ctxResale, configResale);
+            }
+
+            // --- グラフ3: 大阪主要エリアの坪単価 ---
+            const ctxLandPrice = document.getElementById('landPriceChart')?.getContext('2d');
+            if (ctxLandPrice) {
+                const interpolate = (y1, y2) => y1 + (y2 - y1) * (8 / 20); 
+
+                const dataLandPrice = {
+                    labels: ['2005年', '2013年', '2025年 (予測)'],
+                    datasets: [
+                        {
+                            label: '梅田（北区）',
+                            data: [150, interpolate(150, 600), 600], 
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            fill: true,
+                            pointRadius: 5,
+                            pointHoverRadius: 8,
+                        },
+                        {
+                            label: '中央区',
+                            data: [120, interpolate(120, 360), 360], 
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            fill: true,
+                            pointRadius: 5,
+                            pointHoverRadius: 8,
+                        },
+                        {
+                            label: '上本町（天王寺区）',
+                            data: [100, 175, 250], 
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            fill: true,
+                            pointRadius: 5,
+                            pointHoverRadius: 8,
+                        },
+                        {
+                            label: '東大阪市布施',
+                            data: [100, interpolate(100, 120), 120], 
+                            borderColor: 'rgba(107, 114, 128, 1)',
+                            backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            fill: true,
+                            pointRadius: 5,
+                            pointHoverRadius: 8,
+                        }
+                    ]
+                };
+                
+                const optionsLandPrice = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 14, weight: 'bold' },
+                                color: textColor // ダークモード対応
+                            }
+                        },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { size: 16, weight: 'bold' },
+                            bodyFont: { size: 14 },
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    const value = context.parsed.y;
+                                    return `${label}${value.toFixed(0)}万円`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '坪単価（万円/坪）',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                             ticks: {
+                                color: textColor // ダークモード対応
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '年',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                             ticks: {
+                                color: textColor // ダークモード対応
+                            }
+                        }
+                    }
+                };
+                
+                new Chart(ctxLandPrice, {
+                    type: 'line',
+                    data: dataLandPrice,
+                    options: optionsLandPrice
+                });
+            }
+
+            // --- ★★★ 新規グラフ (インフレ) ★★★ ---
+
+            // 1. ポートフォリオ配分 (円グラフ)
+            const portfolioCtx = document.getElementById('portfolioChart')?.getContext('2d');
+            if (portfolioCtx) {
+                new Chart(portfolioCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['伝統資産 (株式・債券)', 'パワー・イノベーション', 'プライベート・クレジット'],
+                        datasets: [{
+                            data: [96, 2, 2],
+                            backgroundColor: [
+                                '#4a5568', // gray-700
+                                '#16a34a', // green-600
+                                '#9333ea', // purple-600
+                            ],
+                            borderColor: isDarkMode ? '#2d3748' : '#f7fafc', // dark:bg-gray-800 / bg-gray-100
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: textColor }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.label + ': ' + context.raw + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. インフレ下の期待リターン源泉 (レーダーチャート)
+            const returnSourceCtx = document.getElementById('returnSourceChart')?.getContext('2d');
+            if (returnSourceCtx) {
+                new Chart(returnSourceCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['キャピタルゲイン (値上り益)', 'インカムゲイン (利息・配当)'],
+                        datasets: [
+                            {
+                                label: 'パワー・イノベーション',
+                                data: [9, 3], // 9割キャピタル狙い、1割インカム（配当など）
+                                fill: true,
+                                backgroundColor: 'rgba(22, 163, 74, 0.2)',
+                                borderColor: '#16a34a',
+                                pointBackgroundColor: '#16a34a',
+                            },
+                            {
+                                label: 'プライベート・クレジット',
+                                data: [2, 9], // 1割キャピタル（評価益）、9割インカム狙い
+                                fill: true,
+                                backgroundColor: 'rgba(147, 51, 234, 0.2)',
+                                borderColor: '#9333ea',
+                                pointBackgroundColor: '#9333ea',
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            r: {
+                                angleLines: { color: gridColor },
+                                grid: { color: gridColor },
+                                pointLabels: { color: textColor, font: {size: 11} }, // フォントサイズ調整
+                                ticks: {
+                                    display: false,
+                                    beginAtZero: true,
+                                    max: 10
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: textColor }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 3. 分散効果 (折れ線グラフ - 概念図)
+            const diversificationCtx = document.getElementById('diversificationChart')?.getContext('2d');
+            if (diversificationCtx) {
+                new Chart(diversificationCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+                        datasets: [
+                            {
+                                label: '伝統資産 (例: S&P 500)',
+                                data: [100, 105, 102, 110, 108, 105, 112],
+                                borderColor: '#4a5568', // gray-700
+                                tension: 0.1,
+                                fill: false,
+                            },
+                            {
+                                label: 'オルタナティブ資産 (今回投資分)',
+                                data: [100, 98, 103, 102, 105, 108, 107],
+                                borderColor: '#3b82f6', // blue-500
+                                borderDash: [5, 5],
+                                tension: 0.1,
+                                fill: false,
+                            },
+                            {
+                                label: '合成ポートフォリオ (概念)',
+                                data: [100, 104.7, 102.1, 109.7, 107.9, 105.1, 111.8],
+                                borderColor: '#db2777', // pink-600
+                                tension: 0.1,
+                                fill: false,
+                                borderWidth: 3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: textColor }
+                            },
+                        },
+                        scales: {
+                            y: {
+                                display: false,
+                            },
+                            x: {
+                                 ticks: {
+                                    color: textColor
+                                 }
+                            }
+                        }
+                    }
+                });
+            }
+
+        });
+    </script>
+</body>
+</html>
+
